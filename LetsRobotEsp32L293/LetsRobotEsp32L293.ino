@@ -1,12 +1,31 @@
 //for enabling serial output
 #define DEBUG
 
+///-- GYRO DRIFT COMPENSATION --///
+/*
+ * To use Gyro drift compensation, you must connect an MPU_6050 or better to I2C
+ * This does not utilize the interrupt, so only SDA and SCL need to be hooked up
+ * 
+ * Required Libraries: 
+ * - MPU6050_tockn.h
+ * - PID_v1.h - PID values can be adjusted in its definition, but may really only need P
+ */
 //enable this to get gyro compensation features
 #define GYRO
 
 //enable this if the imu is upside down
-//#define GYRO_UPSIDE_DOWN 
+#define GYRO_UPSIDE_DOWN 
 
+
+///-- OTA --///
+/*
+ * To Use OTA, you must have a file named wifi_pass.h, and add this code. 
+ * This is done for version control safety. If you want this file versioned, remove it from the .gitignore file
+ String wifiAPList[][2] = {
+  {"SSID","PASS"} //First AP
+  ,{"SSID","PASS"} //optional second AP
+  };
+*/
 //uncomment to enable OTA support
 //#define OTA 
 
@@ -17,10 +36,10 @@
 #endif
 #include "l293d.h"
 #if defined(OTA)
+#include "wifi_pass.h" //error here? Check the ///-- OTA --/// section at top
 #include <WiFi.h>
 #include <WiFiMulti.h>
 #include <ArduinoOTA.h>
-
 WiFiMulti wifiMulti;     // Create an instance of the ESP8266WiFiMulti class, called 'wifiMulti'
 #endif
 
@@ -65,9 +84,9 @@ void setup() {
   Serial.begin(115200);
   #endif
   #if defined(OTA)
-    wifiMulti.addAP("SSID", "PASSWORD");   // add Wi-Fi networks you want to connect to
-  wifiMulti.addAP("SECOND_SSID", "PASSWORD");
-
+  for(int i = 0; i < wifiAPList.length; i++){ //error here? Check the ///-- OTA --/// section at top
+    wifiMulti.addAP(wifiAPList[i][0], wifiAPList[i][1]);
+  }
 #if defined(DEBUG)
   Serial.println("Connecting ...");
 #endif
