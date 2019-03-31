@@ -14,7 +14,7 @@
 #define GYRO
 
 //enable this if the imu is upside down
-#define GYRO_UPSIDE_DOWN 
+//#define GYRO_UPSIDE_DOWN 
 
 
 ///-- OTA --///
