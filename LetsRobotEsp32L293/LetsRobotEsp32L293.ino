@@ -1,6 +1,14 @@
-#define DEBUG //for enabling serial output
-#define GYRO //enable this to get gyro compensation features
-//#define OTA //uncomment to enable OTA support
+//for enabling serial output
+#define DEBUG
+
+//enable this to get gyro compensation features
+#define GYRO
+
+//enable this if the imu is upside down
+//#define GYRO_UPSIDE_DOWN 
+
+//uncomment to enable OTA support
+//#define OTA 
 
 #if defined(GYRO)
 #include <MPU6050_tockn.h>
@@ -275,6 +283,11 @@ void loop() {
   if(leftDir == BACKWARD){
     offset = -offset;  
   }
+  
+  #if defined(GYRO_UPSIDE_DOWN)
+    offset = -offset; //flip the offset
+  #endif
+  
   #if defined(DEBUG)
   Serial.print(offset);
   Serial.print(",");
