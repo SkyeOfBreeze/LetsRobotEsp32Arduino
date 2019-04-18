@@ -84,8 +84,9 @@ void setup() {
   Serial.begin(115200);
   #endif
   #if defined(OTA)
-  for(int i = 0; i < wifiAPList.length; i++){ //error here? Check the ///-- OTA --/// section at top
-    wifiMulti.addAP(wifiAPList[i][0], wifiAPList[i][1]);
+  int rowCount = sizeof wifiAPList / sizeof wifiAPList[0];
+  for(int i = 0; i < rowCount; i++){ //error here? Check the ///-- OTA --/// section at top
+    wifiMulti.addAP(wifiAPList[i][0].c_str(), wifiAPList[i][1].c_str());
   }
 #if defined(DEBUG)
   Serial.println("Connecting ...");
