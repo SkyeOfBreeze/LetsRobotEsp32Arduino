@@ -104,7 +104,7 @@ void setup() {
   #endif
   #if defined(RGB_LED)
     SetupRGB();
-    colorWipe(strip.Color(255, 0, 0), 50); // Red
+    SetColorsDirect(255, 0, 0); // Red
   #endif
   #if defined(OTA)
   int rowCount = sizeof wifiAPList / sizeof wifiAPList[0];
@@ -116,7 +116,7 @@ void setup() {
 #endif
   int i = 0;
   #if defined(RGB_LED)
-  colorWipe(strip.Color(100, 100, 0), 50);
+  SetColorsDirect(100, 100, 0);
   #endif
   while (wifiMulti.run() != WL_CONNECTED) { // Wait for the Wi-Fi to connect
     delay(250);
@@ -125,7 +125,7 @@ void setup() {
     #endif
   }
   #if defined(RGB_LED)
-  colorWipe(strip.Color(0, 0, 100), 50);
+  SetColorsDirect(0, 0, 100);
   #endif
   #if defined(DEBUG)
   Serial.println('\n');
@@ -175,9 +175,9 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
   #if defined(RGB_LED)
-  colorWipe(strip.Color(0, 100, 0), 50); // good to go
+  SetColorsDirect(0, 100, 0); // good to go
   delay(1000);
-  colorWipe(strip.Color(0, 0, 0), 50); // clear all
+  SetColorsDirect(0, 0, 0);
   #endif
 }
 

@@ -62,6 +62,8 @@ void LedTask( void * pvParameters ){
   }
 }
 
+
+
 void SetupTask(){
   //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
   xTaskCreatePinnedToCore(
@@ -103,6 +105,8 @@ void refreshLeds(){
     strip.show();
 }
 
+
+
 void set_neopixel(uint8_t pixel_num, uint32_t color)
 {
     if(pixel_num <LED_DRIVER_COUNT)
@@ -119,6 +123,14 @@ void set_neopixel_group(uint32_t color)
         ledColors[i] = color;
     }   
     refreshLeds();
+}
+
+void SetColorsDirect(int red, int green, int blue){
+  red = red*brightness/255;
+  green = green*brightness/255;
+  blue = blue*brightness/255;
+  uint32_t scaled_color = (red << 16)+(green << 8)+(blue);
+  set_neopixel_group(scaled_color);
 }
 
 void increase_brightness()
