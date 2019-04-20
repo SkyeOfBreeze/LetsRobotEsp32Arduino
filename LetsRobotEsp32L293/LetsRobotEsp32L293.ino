@@ -14,7 +14,7 @@
 #define GYRO
 
 //enable this if the imu is upside down
-//#define GYRO_UPSIDE_DOWN 
+#define GYRO_UPSIDE_DOWN 
 
 
 ///-- OTA --///
@@ -27,7 +27,7 @@
   };
 */
 //uncomment to enable OTA support
-//#define OTA 
+#define OTA 
 
 #if defined(GYRO)
 #include <MPU6050_tockn.h>
@@ -41,6 +41,25 @@
 #include <WiFiMulti.h>
 #include <ArduinoOTA.h>
 WiFiMulti wifiMulti;     // Create an instance of the ESP8266WiFiMulti class, called 'wifiMulti'
+#endif
+
+/**
+ * Using RGB LED Strips
+ * 
+ * To use, make sure the define is not commented
+ * 
+ * To change setup, look for these lines in rgbLed.h
+ * #define LED_DRIVER_PIN 15
+ * #define LED_DRIVER_COUNT 6
+ */
+#define RGB_LED
+#if defined(RGB_LED)
+#include "rgbLed.h"
+int color[][3] {{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
+int colorR = 0;
+int colorG = 0;
+int colorB = 0;
+int ledIndex;
 #endif
 
 #include "BluetoothSerial.h"
@@ -83,6 +102,10 @@ void setup() {
   #if defined(DEBUG)
   Serial.begin(115200);
   #endif
+  #if defined(RGB_LED)
+    SetupRGB();
+    colorWipe(strip.Color(255, 0, 0), 50); // Red
+  #endif
   #if defined(OTA)
   int rowCount = sizeof wifiAPList / sizeof wifiAPList[0];
   for(int i = 0; i < rowCount; i++){ //error here? Check the ///-- OTA --/// section at top
@@ -92,12 +115,18 @@ void setup() {
   Serial.println("Connecting ...");
 #endif
   int i = 0;
+  #if defined(RGB_LED)
+  colorWipe(strip.Color(100, 100, 0), 50);
+  #endif
   while (wifiMulti.run() != WL_CONNECTED) { // Wait for the Wi-Fi to connect
     delay(250);
     #if defined(DEBUG)
     Serial.print('.');
     #endif
   }
+  #if defined(RGB_LED)
+  colorWipe(strip.Color(0, 0, 100), 50);
+  #endif
   #if defined(DEBUG)
   Serial.println('\n');
   Serial.print("Connected to ");
@@ -145,6 +174,11 @@ void setup() {
   #endif
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
+  #if defined(RGB_LED)
+  colorWipe(strip.Color(0, 100, 0), 50); // good to go
+  delay(1000);
+  colorWipe(strip.Color(0, 0, 0), 50); // clear all
+  #endif
 }
 
 const unsigned int MAX_INPUT = 20;
@@ -161,6 +195,7 @@ DIR leftDir = OFF;
 int leftSpeed = 0;
 DIR rightDir = OFF;
 int rightSpeed = 0;
+
 void command(char commandStr[]) {
   bool didTimeout = false;
   if (comp("b")) {
@@ -196,6 +231,10 @@ void command(char commandStr[]) {
   else{
     didTimeout = true;
   }
+
+  #if defined(RGB_LED)
+    handleCommand(input_line);
+  #endif
 
   //check for timeout
   if(!didTimeout){
@@ -336,6 +375,10 @@ void loop() {
   if(leftDir != rightDir){
     speedFinal = speeds/4;
   }
+
+  #if defined(RGB_LED)
+    handleLeds();
+  #endif
 
   int leftSpeed = speedFinal-offset;
   int rightSpeed = speedFinal+offset;
