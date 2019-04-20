@@ -22,6 +22,7 @@ volatile uint32_t eye_color = 0xFFFFFF;
 volatile int eye_command = 0;
 volatile uint8_t current_mask = 1;
 volatile uint8_t update_mask = 0;
+TaskHandle_t Task2;
 
 uint32_t ledColors[LED_DRIVER_COUNT];
 uint32_t dim_array[LED_DRIVER_COUNT];
@@ -43,6 +44,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_DRIVER_COUNT, LED_DRIVER_PIN, NE
 
 void SetupRGB();
 void handleCommand(const char* inputString);
+void handleLeds();
 void colorWipe(uint32_t c, uint8_t wait);
 void rainbow(uint8_t wait);
 void rainbowCycle(uint8_t wait);
@@ -50,26 +52,55 @@ void theaterChase(uint32_t c, uint8_t wait);
 void theaterChaseRainbow(uint8_t wait);
 uint32_t Wheel(byte WheelPos);
 
+void LedTask( void * pvParameters ){
+  Serial.print("Task2 running on core ");
+  Serial.println(xPortGetCoreID());
+
+  for(;;){
+    handleLeds();
+    delay(500);
+  }
+}
+
+void SetupTask(){
+  //create a task that will be executed in the Task2code() function, with priority 1 and executed on core 1
+  xTaskCreatePinnedToCore(
+                    LedTask,   /* Task function. */
+                    "Task2",     /* name of task. */
+                    10000,       /* Stack size of task */
+                    NULL,        /* parameter of the task */
+                    1,           /* priority of the task */
+                    &Task2,      /* Task handle to keep track of created task */
+                    0);          /* pin task to core 0 */
+}
+
 void SetupRGB(){
   // This is for Trinket 5V 16MHz, you can remove these three lines if you are not using a Trinket
   #if defined (__AVR_ATtiny85__)
     if (F_CPU == 16000000) clock_prescale_set(clock_div_1);
   #endif
   // End of trinket special code
-
+  SetupTask();
 
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
 }
 
 void refreshLeds(){
-    colorWipe(ledColors[0], 1);
-//    for (int i2 = 0; i2 < LED_DRIVER_COUNT; ++i2)
-//    {
-//        strip.setPixelColor(i2, ledColors[0]);
-//        strip.setBrightness(brightness);
-//        strip.show();
-//    }     
+    //colorWipe(ledColors[0], 1);
+    for (int i2 = 0; i2 < LED_DRIVER_COUNT; ++i2)
+    {
+        uint32_t red = (ledColors[i2]>>16) & 0xFF;
+        red = red*brightness/255;
+        uint32_t green = (ledColors[i2]>>8) & 0xFF;
+        green = green*brightness/255;
+        uint32_t blue = (ledColors[i2]) & 0xFF;
+        blue = blue*brightness/255;
+        uint32_t scaled_color = (red << 16)+(green << 8)+(blue);
+        //dim_array[i2] = scaled_color;
+        strip.setPixelColor(i2, scaled_color);
+    }     
+    strip.show();
 }
 
 void set_neopixel(uint8_t pixel_num, uint32_t color)
@@ -98,8 +129,7 @@ void increase_brightness()
         temp_brightness = 255;
     } 
     brightness = temp_brightness;
-    strip.setBrightness(brightness);
-    strip.show();
+    refreshLeds();
 }  
 
 void decrease_brightness()
@@ -110,8 +140,7 @@ void decrease_brightness()
         temp_brightness = 2;
     } 
     brightness = temp_brightness;
-    strip.setBrightness(brightness);
-    strip.show();
+    refreshLeds();
 }
 
 void eyes_blink(){

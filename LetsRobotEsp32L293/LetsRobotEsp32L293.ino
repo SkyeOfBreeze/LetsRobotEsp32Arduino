@@ -376,10 +376,6 @@ void loop() {
     speedFinal = speeds/4;
   }
 
-  #if defined(RGB_LED)
-    handleLeds();
-  #endif
-
   int leftSpeed = speedFinal-offset;
   int rightSpeed = speedFinal+offset;
   leftMotor.setPower(leftSpeed);
