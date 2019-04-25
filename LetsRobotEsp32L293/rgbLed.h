@@ -108,9 +108,9 @@ void set_neopixel_group(uint32_t color)
 }
 
 void SetColorsDirect(int red, int green, int blue){
-//  uint32_t scaled_color = (red << 16)+(green << 8)+(blue);
-//  pixel_color = scaled_color;
-//  update_eyes = EYES_SET_COLOR_ALL_PIXELS;
+  uint32_t scaled_color = (red << 16)+(green << 8)+(blue);
+  pixel_color = scaled_color;
+  update_eyes = EYES_SET_COLOR_ALL_PIXELS;
 }
 
 void increase_brightness()
